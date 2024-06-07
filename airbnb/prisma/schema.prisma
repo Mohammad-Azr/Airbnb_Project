@@ -153,3 +153,7 @@ model Messages {
   User         Users    @relation(fields: [user_id], references: [user_id])
   Host         Hosts    @relation(fields: [host_id], references: [host_id])
 }
+
+model test{
+  test_id Int @id @default(autoincrement())
+}
