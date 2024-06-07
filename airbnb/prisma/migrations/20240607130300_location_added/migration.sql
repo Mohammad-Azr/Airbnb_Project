@@ -1,0 +1,26 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- CreateTable
+CREATE TABLE [dbo].[Location] (
+    [location_id] INT NOT NULL IDENTITY(1,1),
+    [city] NVARCHAR(1000) NOT NULL,
+    [street] NVARCHAR(1000) NOT NULL,
+    [latitude] DECIMAL(10,8) NOT NULL,
+    [longitude] DECIMAL(11,8) NOT NULL,
+    CONSTRAINT [Location_pkey] PRIMARY KEY CLUSTERED ([location_id])
+);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

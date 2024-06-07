@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Hosts {
+  host_id                Int          @id @default(autoincrement())
+  host_name              String       @unique
+  first_name             String
+  last_name              String
+  email                  String       @unique
+  phone_number           String       @unique
+  password               String
+  host_since             DateTime
+  host_response_time     String
+  host_rate              Float
+  host_identity_verified Boolean
+  Properties             Properties[]
+  Messages               Messages[]
+  Bookings               Bookings[]
+}
+
+model Users {
+  user_id      Int              @id @default(autoincrement())
+  user_name    String           @unique
+  first_name   String
+  last_name    String
+  email        String           @unique
+  phone_number String           @unique
+  password     String
+  birth_date   DateTime
+  Favorites    User_Favorites[]
+  Bookings     Bookings[]
+  Messages     Messages[]
+  Reviews      Reviews[]
+}
+
+model Locations {
+  location_id Int          @id @default(autoincrement())
+  city        String
+  street      String
+  latitude    Float
+  longitude   Float
+  Properties  Properties[]
+}
+
+model Properties {
+  property_id     Int                  @id @default(autoincrement())
+  host_id         Int
+  location_id     Int
+  property_type   String
+  categories      String
+  num_bedrooms    Int
+  num_bathrooms   Int
+  max_guests      Int
+  area            Float
+  price_per_night Float
+  availability    Boolean
+  Host            Hosts                @relation(fields: [host_id], references: [host_id])
+  Location        Locations            @relation(fields: [location_id], references: [location_id])
+  Images          Property_Images[]
+  Amenities       Property_Amenities[]
+  Favorites       User_Favorites[]
+  Bookings        Bookings[]
+  Reviews         Reviews[]
+}
+
+model Property_Images {
+  image_id    Int        @id @default(autoincrement())
+  property_id Int
+  image_url   String
+  Property    Properties @relation(fields: [property_id], references: [property_id])
+}
+
+model Amenities {
+  amenity_id          Int                  @id @default(autoincrement())
+  amenity_name        String
+  amenity_description String?
+  Property_Amenities  Property_Amenities[]
+}
+
+model Property_Amenities {
+  property_id Int
+  amenity_id  Int
+  Property    Properties @relation(fields: [property_id], references: [property_id])
+  Amenity     Amenities  @relation(fields: [amenity_id], references: [amenity_id])
+
+  @@id([property_id, amenity_id])
+}
+
+model User_Favorites {
+  user_id     Int
+  property_id Int
+  User        Users      @relation(fields: [user_id], references: [user_id])
+  Property    Properties @relation(fields: [property_id], references: [property_id])
+
+  @@id([user_id, property_id])
+}
+
+model Bookings {
+  booking_id     Int        @id @default(autoincrement())
+  user_id        Int
+  property_id    Int
+  host_id        Int
+  booking_date   DateTime
+  check_in_date  DateTime
+  check_out_date DateTime
+  num_guests     Int
+  total_cost     Float? 
+  User           Users      @relation(fields: [user_id], references: [user_id])
+  Property       Properties @relation(fields: [property_id], references: [property_id], onDelete: NoAction, onUpdate: NoAction)
+  Host           Hosts      @relation(fields: [host_id], references: [host_id])
+  Payment        Payments[]
+}
+
+model Payments {
+  payment_id     Int      @id @default(autoincrement())
+  booking_id     Int
+  payment_date   DateTime
+  payment_amount Float
+  payment_method String
+  Booking        Bookings @relation(fields: [booking_id], references: [booking_id])
+}
+
+model Reviews {
+  review_id     Int        @id @default(autoincrement())
+  user_id       Int
+  property_id   Int
+  review_date   DateTime
+  review_rating Float
+  review_text   String?
+  User          Users      @relation(fields: [user_id], references: [user_id])
+  Property      Properties @relation(fields: [property_id], references: [property_id])
+}
+
+model Messages {
+  message_id   Int      @id @default(autoincrement())
+  user_id      Int
+  host_id      Int
+  message_date DateTime
+  message_time DateTime
+  message_text String?
+  User         Users    @relation(fields: [user_id], references: [user_id])
+  Host         Hosts    @relation(fields: [host_id], references: [host_id])
+}
